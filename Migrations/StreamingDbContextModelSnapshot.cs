@@ -16,161 +16,147 @@ namespace StreamingAPI.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.0");
 
-            modelBuilder.Entity("StreamingAPI.Data.Conteudo", b =>
+            modelBuilder.Entity("StreamingAPI.Models.Playlist", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("CriadorId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Descricao")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Titulo")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CriadorId");
-
-                    b.ToTable("Conteudos");
-                });
-
-            modelBuilder.Entity("StreamingAPI.Data.Criador", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Nome")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Criadores");
-                });
-
-            modelBuilder.Entity("StreamingAPI.Data.ItemPlaylist", b =>
-                {
-                    b.Property<int>("PlaylistId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("ConteudoId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("Ordem")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("PlaylistId", "ConteudoId");
-
-                    b.HasIndex("ConteudoId");
-
-                    b.ToTable("ItensPlaylist");
-                });
-
-            modelBuilder.Entity("StreamingAPI.Data.Playlist", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Nome")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("UsuarioId")
+                    b.Property<int>("UserId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UsuarioId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Playlists");
                 });
 
-            modelBuilder.Entity("StreamingAPI.Data.Usuario", b =>
+            modelBuilder.Entity("StreamingAPI.Models.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Email")
+                    b.Property<bool>("IsCreator")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Nome")
+                    b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Usuarios");
+                    b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("StreamingAPI.Data.Conteudo", b =>
+            modelBuilder.Entity("StreamingAPI.Models.Video", b =>
                 {
-                    b.HasOne("StreamingAPI.Data.Criador", "Criador")
-                        .WithMany("Conteudos")
-                        .HasForeignKey("CriadorId")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("CreatorId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("VideoPath")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatorId");
+
+                    b.ToTable("Videos");
+                });
+
+            modelBuilder.Entity("StreamingAPI.Models.VideoPlaylist", b =>
+                {
+                    b.Property<int>("VideoId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("PlaylistId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("VideoId", "PlaylistId");
+
+                    b.HasIndex("PlaylistId");
+
+                    b.ToTable("VideoPlaylists");
+                });
+
+            modelBuilder.Entity("StreamingAPI.Models.Playlist", b =>
+                {
+                    b.HasOne("StreamingAPI.Models.User", "Owner")
+                        .WithMany("Playlists")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Criador");
+                    b.Navigation("Owner");
                 });
 
-            modelBuilder.Entity("StreamingAPI.Data.ItemPlaylist", b =>
+            modelBuilder.Entity("StreamingAPI.Models.Video", b =>
                 {
-                    b.HasOne("StreamingAPI.Data.Conteudo", "Conteudo")
-                        .WithMany("ItensPlaylist")
-                        .HasForeignKey("ConteudoId")
+                    b.HasOne("StreamingAPI.Models.User", "Creator")
+                        .WithMany("Videos")
+                        .HasForeignKey("CreatorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("StreamingAPI.Data.Playlist", "Playlist")
-                        .WithMany("ItensPlaylist")
+                    b.Navigation("Creator");
+                });
+
+            modelBuilder.Entity("StreamingAPI.Models.VideoPlaylist", b =>
+                {
+                    b.HasOne("StreamingAPI.Models.Playlist", "Playlist")
+                        .WithMany("VideoPlaylists")
                         .HasForeignKey("PlaylistId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Conteudo");
-
-                    b.Navigation("Playlist");
-                });
-
-            modelBuilder.Entity("StreamingAPI.Data.Playlist", b =>
-                {
-                    b.HasOne("StreamingAPI.Data.Usuario", "Usuario")
-                        .WithMany("Playlists")
-                        .HasForeignKey("UsuarioId")
+                    b.HasOne("StreamingAPI.Models.Video", "Video")
+                        .WithMany("VideoPlaylists")
+                        .HasForeignKey("VideoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Usuario");
+                    b.Navigation("Playlist");
+
+                    b.Navigation("Video");
                 });
 
-            modelBuilder.Entity("StreamingAPI.Data.Conteudo", b =>
+            modelBuilder.Entity("StreamingAPI.Models.Playlist", b =>
                 {
-                    b.Navigation("ItensPlaylist");
+                    b.Navigation("VideoPlaylists");
                 });
 
-            modelBuilder.Entity("StreamingAPI.Data.Criador", b =>
-                {
-                    b.Navigation("Conteudos");
-                });
-
-            modelBuilder.Entity("StreamingAPI.Data.Playlist", b =>
-                {
-                    b.Navigation("ItensPlaylist");
-                });
-
-            modelBuilder.Entity("StreamingAPI.Data.Usuario", b =>
+            modelBuilder.Entity("StreamingAPI.Models.User", b =>
                 {
                     b.Navigation("Playlists");
+
+                    b.Navigation("Videos");
+                });
+
+            modelBuilder.Entity("StreamingAPI.Models.Video", b =>
+                {
+                    b.Navigation("VideoPlaylists");
                 });
 #pragma warning restore 612, 618
         }

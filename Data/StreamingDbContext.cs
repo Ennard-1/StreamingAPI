@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using StreamingAPI.Models;
 
 namespace StreamingAPI.Data
 {
@@ -6,27 +7,35 @@ namespace StreamingAPI.Data
     {
         public StreamingDbContext(DbContextOptions<StreamingDbContext> options) : base(options) { }
 
-        public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Video> Videos { get; set; }
         public DbSet<Playlist> Playlists { get; set; }
-        public DbSet<Conteudo> Conteudos { get; set; }
-        public DbSet<Criador> Criadores { get; set; }
-        public DbSet<ItemPlaylist> ItensPlaylist { get; set; }
+        public DbSet<VideoPlaylist> VideoPlaylists { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Configuração da chave composta de ItemPlaylist (N:M)
-            modelBuilder.Entity<ItemPlaylist>()
-                .HasKey(ip => new { ip.PlaylistId, ip.ConteudoId });
+            modelBuilder.Entity<VideoPlaylist>()
+                .HasKey(vp => new { vp.VideoId, vp.PlaylistId });
 
-            modelBuilder.Entity<ItemPlaylist>()
-                .HasOne(ip => ip.Playlist)
-                .WithMany(p => p.ItensPlaylist)
-                .HasForeignKey(ip => ip.PlaylistId);
+            modelBuilder.Entity<VideoPlaylist>()
+                .HasOne(vp => vp.Video)
+                .WithMany(v => v.VideoPlaylists)
+                .HasForeignKey(vp => vp.VideoId);
 
-            modelBuilder.Entity<ItemPlaylist>()
-                .HasOne(ip => ip.Conteudo)
-                .WithMany(c => c.ItensPlaylist)
-                .HasForeignKey(ip => ip.ConteudoId);
+            modelBuilder.Entity<VideoPlaylist>()
+                .HasOne(vp => vp.Playlist)
+                .WithMany(p => p.VideoPlaylists)
+                .HasForeignKey(vp => vp.PlaylistId);
+
+            modelBuilder.Entity<Video>()
+                .HasOne(v => v.Creator)
+                .WithMany(u => u.Videos)
+                .HasForeignKey(v => v.CreatorId);
+
+            modelBuilder.Entity<Playlist>()
+                .HasOne(p => p.Owner)
+                .WithMany(u => u.Playlists)
+                .HasForeignKey(p => p.UserId);
         }
     }
 }

@@ -5,7 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Adicionando o DbContext com a string de conexão
 builder.Services.AddDbContext<StreamingDbContext>(options =>
-    options.UseSqlite("Data Source=streaming.db"));
+    options.UseSqlite("Data Source=Data/streaming.db"));
     
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
