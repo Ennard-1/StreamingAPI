@@ -4,20 +4,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StreamingAPI.Models
 {
-    public class Playlist
-    {
-        [Key]
-        public int Id { get; set; }
+   public class Playlist {
+    public int ID { get; set; }
+    public string Nome { get; set; }
+     public int UsuarioID { get; set; }
+    public Usuario Usuario { get; set; }
+     public List<ItemPlaylist> ItemPlaylists { get; set; }
+}
 
-        [Required]
-        public string Name { get; set; }
-
-        public int UserId { get; set; }
-
-        [ForeignKey("UserId")]
-        public User Owner { get; set; }
-
-        // Propriedade de navegação para a tabela de junção
-        public List<VideoPlaylist> VideoPlaylists { get; set; } = new();
-    }
 }

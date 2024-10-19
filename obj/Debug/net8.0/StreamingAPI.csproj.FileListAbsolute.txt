@@ -85,3 +85,6 @@
 /home/ennard/Documentos/StreamingAPI/obj/Debug/net8.0/StreamingAPI.pdb
 /home/ennard/Documentos/StreamingAPI/obj/Debug/net8.0/StreamingAPI.genruntimeconfig.cache
 /home/ennard/Documentos/StreamingAPI/obj/Debug/net8.0/ref/StreamingAPI.dll
+/home/ennard/Documentos/StreamingAPI/bin/Debug/net8.0/BCrypt.Net-Next.dll
+/home/ennard/Documentos/StreamingAPI/bin/Debug/net8.0/Microsoft.AspNetCore.Authentication.JwtBearer.dll
+/home/ennard/Documentos/StreamingAPI/bin/Debug/net8.0/Microsoft.IdentityModel.Abstractions.dll
