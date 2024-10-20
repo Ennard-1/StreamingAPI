@@ -1,13 +1,11 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
-using StreamingAPI.Data; // Altere para o seu namespace real
-using StreamingAPI.Models; // Altere para o seu namespace real
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using StreamingAPI.Data;
+using StreamingAPI.Models;
 
 namespace StreamingAPI.Controllers
 {
@@ -27,7 +25,6 @@ namespace StreamingAPI.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
-            // Verificar se o e-mail já está em uso
             if (await _context.Usuarios.AnyAsync(u => u.Email == request.Email))
             {
                 return BadRequest(new { message = "O e-mail já está em uso." });
@@ -37,7 +34,10 @@ namespace StreamingAPI.Controllers
             {
                 Nome = request.Nome,
                 Email = request.Email,
-                SenhaHash = BCrypt.Net.BCrypt.HashPassword(request.Senha) // Hash da senha
+                SenhaHash = BCrypt.Net.BCrypt.HashPassword(
+                    request.Senha
+                ) 
+                ,
             };
 
             await _context.Usuarios.AddAsync(usuario);
@@ -49,8 +49,9 @@ namespace StreamingAPI.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            var usuario = await _context.Usuarios
-                .FirstOrDefaultAsync(u => u.Email == request.Email);
+            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u =>
+                u.Email == request.Email
+            );
 
             if (usuario == null || !BCrypt.Net.BCrypt.Verify(request.Senha, usuario.SenhaHash))
                 return Unauthorized(new { message = "Credenciais inválidas." });
@@ -66,14 +67,15 @@ namespace StreamingAPI.Controllers
 
             var claims = new[]
             {
+                new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()), 
                 new Claim(ClaimTypes.Name, usuario.Nome),
-                new Claim(ClaimTypes.Email, usuario.Email)
+                new Claim(ClaimTypes.Email, usuario.Email),
             };
 
             var token = new JwtSecurityToken(
-                _configuration["Jwt:Issuer"],
-                _configuration["Jwt:Audience"],
-                claims,
+                issuer: _configuration["Jwt:Issuer"],
+                audience: _configuration["Jwt:Audience"],
+                claims: claims,
                 expires: DateTime.Now.AddMinutes(60),
                 signingCredentials: creds
             );
@@ -84,14 +86,14 @@ namespace StreamingAPI.Controllers
 
     public class RegisterRequest
     {
-        public string Nome { get; set; }
-        public string Email { get; set; }
-        public string Senha { get; set; }
+        public required string Nome { get; set; }
+        public required string Email { get; set; }
+        public required string Senha { get; set; }
     }
 
     public class LoginRequest
     {
-        public string Email { get; set; }
-        public string Senha { get; set; }
+        public required string Email { get; set; }
+        public required string Senha { get; set; }
     }
 }

@@ -1,10 +1,11 @@
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace StreamingAPI.Models
 {
-    public class Usuario {
-    public int ID { get; set; }
+    public class Usuario
+    {
+        [Key]
+        public int Id { get; set; }
 
         [Required]
         [MaxLength(50)]
@@ -16,7 +17,9 @@ namespace StreamingAPI.Models
 
         [Required]
         public string SenhaHash { get; set; }
-    public List<Playlist> Playlists { get; set; } = new();
-}
 
+        public ICollection<Conteudo> Conteudos { get; set; } = new List<Conteudo>();
+
+        public ICollection<Playlist> Playlists { get; set; } = new List<Playlist>();
+    }
 }

@@ -1,13 +1,31 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace StreamingAPI.Models
 {
-public class Conteudo {
-    public int ID { get; set; }
-    public string Titulo { get; set; }
-    public string Tipo { get; set; }
-     public int CriadorID { get; set; }
-    public Criador Criador { get; set; }
-    public List<ItemPlaylist> ItemPlaylists { get; set; }
-}
+    public class Conteudo
+    {
+        [Key]
+        public int Id { get; set; }
 
+        [Required]
+        public string Titulo { get; set; }
+
+        [Required]
+        public string Tipo { get; set; }
+
+        [Required]
+        public string NomeArquivo { get; set; }
+
+        [Required]
+        public string Thumbnail { get; set; }
+
+        [Required]
+        public int UsuarioID { get; set; }
+
+        [ForeignKey(nameof(UsuarioID))]
+        [JsonIgnore]
+        public Usuario Usuario { get; set; }
+    }
 }
