@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StreamingAPI.Data;
-using StreamingAPI.Models;
 using StreamingAPI.Helpers;
+using StreamingAPI.Models;
 
 namespace StreamingAPI.Controllers
 {
@@ -23,7 +23,7 @@ namespace StreamingAPI.Controllers
             {
                 Nome = request.Nome,
                 Email = request.Email,
-                SenhaHash = BCrypt.Net.BCrypt.HashPassword(request.Senha)
+                SenhaHash = BCrypt.Net.BCrypt.HashPassword(request.Senha),
             };
 
             await _context.Usuarios.AddAsync(usuario);
@@ -35,14 +35,55 @@ namespace StreamingAPI.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            var usuario = await _context.Usuarios
-                .FirstOrDefaultAsync(u => u.Email == request.Email);
+            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u =>
+                u.Email == request.Email
+            );
 
             if (usuario == null || !BCrypt.Net.BCrypt.Verify(request.Senha, usuario.SenhaHash))
                 return Unauthorized(new { message = "Credenciais inválidas." });
 
             var token = _jwtHelper.GenerateToken(usuario.Id, usuario.Email);
             return Ok(new { token });
+        }
+
+        [HttpGet("info")]
+        public async Task<IActionResult> GetUserFromToken()
+        {
+            var authHeader = HttpContext.Request.Headers["Authorization"].ToString();
+
+            // Verifica se o header de autorização existe e tem o prefixo "Bearer"
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+                return Unauthorized(new { message = "Token ausente ou inválido." });
+
+            // Extrai o token JWT do header
+            var token = authHeader.Substring("Bearer ".Length).Trim();
+
+            // Tenta validar e ler o token
+            var jwtToken = _jwtHelper.ValidateToken(token);
+            if (jwtToken == null)
+                return Unauthorized(new { message = "Token inválido." });
+
+            // Extrai o ID do usuário do token
+            var userIdClaim = jwtToken.Claims.FirstOrDefault(c =>
+                c.Type == System.Security.Claims.ClaimTypes.NameIdentifier
+            );
+            if (userIdClaim == null)
+                return Unauthorized(new { message = "Token não contém informações de usuário." });
+
+            var usuarioId = int.Parse(userIdClaim.Value);
+            var usuario = await _context.Usuarios.FindAsync(usuarioId);
+
+            if (usuario == null)
+                return NotFound(new { message = "Usuário não encontrado." });
+
+            return Ok(
+                new
+                {
+                    usuario.Id,
+                    usuario.Nome,
+                    usuario.Email,
+                }
+            );
         }
     }
 

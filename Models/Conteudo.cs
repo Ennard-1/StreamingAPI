@@ -27,5 +27,8 @@ namespace StreamingAPI.Models
         [ForeignKey(nameof(UsuarioID))]
         [JsonIgnore]
         public Usuario Usuario { get; set; }
+
+        [JsonIgnore]
+        public virtual ICollection<ItemPlaylist> Itens { get; set; } = new List<ItemPlaylist>();
     }
 }

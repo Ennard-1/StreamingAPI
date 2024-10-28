@@ -4,11 +4,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using StreamingAPI.Data;
 using StreamingAPI.Helpers;
+using StreamingAPI.Repositories;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenLocalhost(5152);
+    options.ListenAnyIP(5152);
 });
 
 builder.Services.AddCors(options =>
@@ -53,6 +54,8 @@ builder
 builder.Services.AddAuthorization();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<PlaylistRepository>();
+
 builder.Services.AddScoped<JwtHelper>();
 var app = builder.Build();
 

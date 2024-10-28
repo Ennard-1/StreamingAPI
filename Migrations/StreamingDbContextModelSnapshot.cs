@@ -16,6 +16,41 @@ namespace StreamingAPI.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.0");
 
+            modelBuilder.Entity("ItemPlaylist", b =>
+                {
+                    b.Property<int>("PlaylistId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ConteudoId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("PlaylistId", "ConteudoId");
+
+                    b.HasIndex("ConteudoId");
+
+                    b.ToTable("ItemPlaylists");
+                });
+
+            modelBuilder.Entity("Playlist", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("UsuarioID")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UsuarioID");
+
+                    b.ToTable("Playlists");
+                });
+
             modelBuilder.Entity("StreamingAPI.Models.Conteudo", b =>
                 {
                     b.Property<int>("Id")
@@ -48,41 +83,6 @@ namespace StreamingAPI.Migrations
                     b.ToTable("Conteudos");
                 });
 
-            modelBuilder.Entity("StreamingAPI.Models.ItemPlaylist", b =>
-                {
-                    b.Property<int>("PlaylistId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("ConteudoId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("PlaylistId", "ConteudoId");
-
-                    b.HasIndex("ConteudoId");
-
-                    b.ToTable("ItemPlaylists");
-                });
-
-            modelBuilder.Entity("StreamingAPI.Models.Playlist", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Nome")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("UsuarioID")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UsuarioID");
-
-                    b.ToTable("Playlists");
-                });
-
             modelBuilder.Entity("StreamingAPI.Models.Usuario", b =>
                 {
                     b.Property<int>("Id")
@@ -110,6 +110,34 @@ namespace StreamingAPI.Migrations
                     b.ToTable("Usuarios");
                 });
 
+            modelBuilder.Entity("ItemPlaylist", b =>
+                {
+                    b.HasOne("StreamingAPI.Models.Conteudo", "Conteudo")
+                        .WithMany("Itens")
+                        .HasForeignKey("ConteudoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Playlist", "Playlist")
+                        .WithMany("Itens")
+                        .HasForeignKey("PlaylistId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Conteudo");
+
+                    b.Navigation("Playlist");
+                });
+
+            modelBuilder.Entity("Playlist", b =>
+                {
+                    b.HasOne("StreamingAPI.Models.Usuario", null)
+                        .WithMany("Playlists")
+                        .HasForeignKey("UsuarioID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("StreamingAPI.Models.Conteudo", b =>
                 {
                     b.HasOne("StreamingAPI.Models.Usuario", "Usuario")
@@ -121,39 +149,14 @@ namespace StreamingAPI.Migrations
                     b.Navigation("Usuario");
                 });
 
-            modelBuilder.Entity("StreamingAPI.Models.ItemPlaylist", b =>
+            modelBuilder.Entity("Playlist", b =>
                 {
-                    b.HasOne("StreamingAPI.Models.Conteudo", "Conteudo")
-                        .WithMany()
-                        .HasForeignKey("ConteudoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("StreamingAPI.Models.Playlist", "Playlist")
-                        .WithMany("ItemPlaylists")
-                        .HasForeignKey("PlaylistId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Conteudo");
-
-                    b.Navigation("Playlist");
+                    b.Navigation("Itens");
                 });
 
-            modelBuilder.Entity("StreamingAPI.Models.Playlist", b =>
+            modelBuilder.Entity("StreamingAPI.Models.Conteudo", b =>
                 {
-                    b.HasOne("StreamingAPI.Models.Usuario", "Usuario")
-                        .WithMany("Playlists")
-                        .HasForeignKey("UsuarioID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Usuario");
-                });
-
-            modelBuilder.Entity("StreamingAPI.Models.Playlist", b =>
-                {
-                    b.Navigation("ItemPlaylists");
+                    b.Navigation("Itens");
                 });
 
             modelBuilder.Entity("StreamingAPI.Models.Usuario", b =>

@@ -5,46 +5,47 @@ namespace StreamingAPI.Data
 {
     public class StreamingDbContext : DbContext
     {
-        public StreamingDbContext(DbContextOptions<StreamingDbContext> options) : base(options) { }
+        public StreamingDbContext(DbContextOptions<StreamingDbContext> options)
+            : base(options) { }
 
-   public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<Conteudo> Conteudos { get; set; }
         public DbSet<Playlist> Playlists { get; set; }
+
         public DbSet<ItemPlaylist> ItemPlaylists { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-     modelBuilder.Entity<Usuario>()
-        .HasIndex(u => u.Email)
-        .IsUnique(); // Email deve ser único
+            modelBuilder.Entity<Usuario>().HasIndex(u => u.Email).IsUnique(); // Email deve ser único
 
-    // Playlist -> Usuario
-    modelBuilder.Entity<Playlist>()
-        .HasOne(p => p.Usuario)
-        .WithMany(u => u.Playlists)
-        .HasForeignKey(p => p.UsuarioID)
-        .OnDelete(DeleteBehavior.Cascade);
+            // Playlist -> Usuario
+            modelBuilder.Entity<Playlist>().HasKey(p => p.Id);
 
-    // Conteudo -> Usuario
-    modelBuilder.Entity<Conteudo>()
-        .HasOne(c => c.Usuario)
-        .WithMany(u => u.Conteudos)
-        .HasForeignKey(c => c.UsuarioID)
-        .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Playlist>().Property(p => p.Nome).IsRequired();
 
-    // Muitos-para-Muitos entre Playlist e Conteudo via ItemPlaylist
-    modelBuilder.Entity<ItemPlaylist>()
-        .HasKey(ip => new { ip.PlaylistId, ip.ConteudoId });
+            modelBuilder.Entity<Playlist>().Property(p => p.UsuarioID).IsRequired();
 
-    modelBuilder.Entity<ItemPlaylist>()
-        .HasOne(ip => ip.Playlist)
-        .WithMany(p => p.ItemPlaylists)
-        .HasForeignKey(ip => ip.PlaylistId);
+            // Conteudo -> Usuario
+            modelBuilder
+                .Entity<Conteudo>()
+                .HasOne(c => c.Usuario)
+                .WithMany(u => u.Conteudos)
+                .HasForeignKey(c => c.UsuarioID)
+                .OnDelete(DeleteBehavior.Cascade);
 
-    modelBuilder.Entity<ItemPlaylist>()
-        .HasOne(ip => ip.Conteudo)
-        .WithMany()
-        .HasForeignKey(ip => ip.ConteudoId);
+            modelBuilder.Entity<ItemPlaylist>().HasKey(ip => new { ip.PlaylistId, ip.ConteudoId });
+
+            modelBuilder
+                .Entity<ItemPlaylist>()
+                .HasOne(ip => ip.Playlist)
+                .WithMany(p => p.Itens)
+                .HasForeignKey(ip => ip.PlaylistId);
+
+            modelBuilder
+                .Entity<ItemPlaylist>()
+                .HasOne(ip => ip.Conteudo)
+                .WithMany(c => c.Itens)
+                .HasForeignKey(ip => ip.ConteudoId);
         }
     }
 }
