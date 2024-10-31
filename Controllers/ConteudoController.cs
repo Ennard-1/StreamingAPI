@@ -35,27 +35,6 @@ namespace StreamingAPI.Controllers
             return Ok(conteudo);
         }
 
-        [HttpGet("usuario")]
-        public async Task<IActionResult> GetConteudosByUsuario()
-        {
-            var usuarioId = _jwtHelper.GetUsuarioIdFromToken(Request);
-            if (usuarioId == null)
-            {
-                return Unauthorized(new { message = "Usuário não autenticado." });
-            }
-
-            var conteudos = await _context
-                .Conteudos.Where(c => c.UsuarioID == usuarioId)
-                .ToListAsync();
-
-            if (!conteudos.Any())
-            {
-                return NotFound(new { message = "Nenhum conteúdo encontrado para este usuário." });
-            }
-
-            return Ok(conteudos);
-        }
-
         [HttpGet("thumbnails/{thumbnail}")]
         public async Task<IActionResult> GetThumbnail(string thumbnail)
         {
