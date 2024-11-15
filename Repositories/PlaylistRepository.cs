@@ -127,5 +127,20 @@ namespace StreamingAPI.Repositories
             await _context.SaveChangesAsync();
             return true;
         }
+        public async Task<bool> RemoveVideoFromPlaylist(int playlistId, int conteudoId)
+        {
+            // Procurar o item da playlist que corresponde ao vídeo e à playlist especificados
+            var itemPlaylist = await _context.ItemPlaylists
+                .FirstOrDefaultAsync(ip => ip.PlaylistId == playlistId && ip.ConteudoId == conteudoId);
+
+            if (itemPlaylist == null)
+                return false; // Item não encontrado na playlist
+
+            _context.ItemPlaylists.Remove(itemPlaylist);
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
     }
 }

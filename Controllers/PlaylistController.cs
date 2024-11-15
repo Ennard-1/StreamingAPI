@@ -10,7 +10,7 @@ namespace StreamingAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-     // Adicione esta linha para proteger todas as rotas
+    // Adicione esta linha para proteger todas as rotas
     public class PlaylistController : ControllerBase
     {
         private readonly PlaylistRepository _playlistRepository;
@@ -116,13 +116,51 @@ namespace StreamingAPI.Controllers
             return updatedPlaylist;
         }
 
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<bool>> DeletePlaylist(int id)
+        [HttpDelete("{playlistId}/videos/{conteudoId}")]
+        public async Task<ActionResult> DeleteVideoFromPlaylist(int playlistId, int conteudoId)
         {
+            var userId = _jwtHelper.GetUsuarioIdFromToken(Request);
+            if (userId == null)
+                return Unauthorized();
+
+            // Verificar se o usuário é o criador da playlist
+            var playlist = await _playlistRepository.GetPlaylistById(playlistId);
+            if (playlist == null)
+                return NotFound("Playlist não encontrada.");
+
+            if (playlist.UsuarioID != userId.Value)
+                return Forbid(); // O usuário não é o dono da playlist
+
+            // Remover o vídeo da playlist
+            var success = await _playlistRepository.RemoveVideoFromPlaylist(playlistId, conteudoId);
+            if (!success)
+                return NotFound("Vídeo não encontrado na playlist.");
+
+            return NoContent(); // Retorna 204 No Content se a remoção for bem-sucedida
+        }
+
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeletePlaylist(int id)
+        {
+            var userId = _jwtHelper.GetUsuarioIdFromToken(Request);
+            if (userId == null)
+                return Unauthorized();
+
+            // Verificar se o usuário é o criador da playlist
+            var playlist = await _playlistRepository.GetPlaylistById(id);
+            if (playlist == null)
+                return NotFound();
+
+            if (playlist.UsuarioID != userId.Value)
+                return Forbid(); // O usuário não é o dono da playlist
+
             var result = await _playlistRepository.DeletePlaylist(id);
             if (!result)
                 return NotFound();
+
             return NoContent();
         }
+
     }
 }
