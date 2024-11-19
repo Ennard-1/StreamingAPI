@@ -67,7 +67,7 @@ namespace StreamingAPI.Helpers
             }
             catch
             {
-                return null; // Token inválido ou expirado
+                return null; 
             }
         }
 

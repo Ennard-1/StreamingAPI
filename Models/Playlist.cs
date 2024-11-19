@@ -9,7 +9,7 @@ public class Playlist
     [Required(ErrorMessage = "O nome da playlist é obrigatório.")]
     public string Nome { get; set; }
 
-    // Propriedade de navegação para a coleção de ItemPlaylist
+   
     [JsonIgnore]
     public virtual ICollection<ItemPlaylist> Itens { get; set; } = new List<ItemPlaylist>();
 }

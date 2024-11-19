@@ -51,19 +51,19 @@ namespace StreamingAPI.Controllers
         {
             var authHeader = HttpContext.Request.Headers["Authorization"].ToString();
 
-            // Verifica se o header de autorização existe e tem o prefixo "Bearer"
+
             if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
                 return Unauthorized(new { message = "Token ausente ou inválido." });
 
-            // Extrai o token JWT do header
+
             var token = authHeader.Substring("Bearer ".Length).Trim();
 
-            // Tenta validar e ler o token
+
             var jwtToken = _jwtHelper.ValidateToken(token);
             if (jwtToken == null)
                 return Unauthorized(new { message = "Token inválido." });
 
-            // Extrai o ID do usuário do token
+
             var userIdClaim = jwtToken.Claims.FirstOrDefault(c =>
                 c.Type == System.Security.Claims.ClaimTypes.NameIdentifier
             );

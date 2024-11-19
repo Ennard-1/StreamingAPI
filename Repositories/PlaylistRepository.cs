@@ -37,13 +37,12 @@ namespace StreamingAPI.Repositories
             if (conteudo == null)
                 return false;
 
-            // Verificar se o vídeo já está na playlist
             bool videoJaExiste = await _context.ItemPlaylists.AnyAsync(ip =>
                 ip.PlaylistId == playlistId && ip.ConteudoId == conteudoId
             );
 
             if (videoJaExiste)
-                return false; // Vídeo já está na playlist
+                return false;
 
             var itemPlaylist = new ItemPlaylist
             {
@@ -59,10 +58,10 @@ namespace StreamingAPI.Repositories
 
         public async Task<Playlist> GetPlaylistById(int id)
         {
-            // Inclui a tabela intermediária para obter conteúdos da playlist
+
             return await _context
                 .Playlists.Include(p => p.Itens)
-                .ThenInclude(ip => ip.Conteudo) // Inclui o conteúdo relacionado
+                .ThenInclude(ip => ip.Conteudo)
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
 
@@ -76,7 +75,7 @@ namespace StreamingAPI.Repositories
             if (playlist == null)
                 return null;
 
-            // Retornar apenas os conteúdos
+
             var videos = playlist.Itens.Select(ip => ip.Conteudo).ToList();
 
             return videos;
@@ -84,20 +83,19 @@ namespace StreamingAPI.Repositories
 
         public async Task<List<Playlist>> GetPlaylistsByUserId(int usuarioId)
         {
-            // Filtrar playlists pelo ID do usuário
+
             return await _context
-                .Playlists.Include(p => p.Itens) // Inclui os itens da playlist
-                .ThenInclude(ip => ip.Conteudo) // Inclui os conteúdos relacionados
-                .Where(p => p.UsuarioID == usuarioId) // Apenas playlists do usuário
+                .Playlists.Include(p => p.Itens)
+                .ThenInclude(ip => ip.Conteudo)
+                .Where(p => p.UsuarioID == usuarioId)
                 .ToListAsync();
         }
 
         public async Task<List<Playlist>> GetAllPlaylists()
         {
-            // Inclui a tabela intermediária para obter conteúdos de todas as playlists
             return await _context
                 .Playlists.Include(p => p.Itens)
-                .ThenInclude(ip => ip.Conteudo) // Inclui os conteúdos relacionados
+                .ThenInclude(ip => ip.Conteudo)
                 .ToListAsync();
         }
 
@@ -108,10 +106,6 @@ namespace StreamingAPI.Repositories
                 return null;
 
             existingPlaylist.Nome = playlist.Nome;
-
-            // Para atualizar os conteúdos, você pode precisar gerenciar a coleção ItemPlaylist.
-            // Isso poderia incluir a remoção de conteúdos existentes e a adição de novos, se necessário.
-            // Implementação da lógica de atualização de conteúdos aqui, se necessário.
 
             await _context.SaveChangesAsync();
             return existingPlaylist;
@@ -129,12 +123,12 @@ namespace StreamingAPI.Repositories
         }
         public async Task<bool> RemoveVideoFromPlaylist(int playlistId, int conteudoId)
         {
-            // Procurar o item da playlist que corresponde ao vídeo e à playlist especificados
+          
             var itemPlaylist = await _context.ItemPlaylists
                 .FirstOrDefaultAsync(ip => ip.PlaylistId == playlistId && ip.ConteudoId == conteudoId);
 
             if (itemPlaylist == null)
-                return false; // Item não encontrado na playlist
+                return false; 
 
             _context.ItemPlaylists.Remove(itemPlaylist);
             await _context.SaveChangesAsync();

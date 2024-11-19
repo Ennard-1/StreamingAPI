@@ -59,7 +59,7 @@ namespace StreamingAPI.Controllers
         [HttpGet("thumbnails/{thumbnail}")]
         public async Task<IActionResult> GetThumbnail(string thumbnail)
         {
-            // Tente encontrar o conteúdo pelo atributo Thumbnail fornecido
+           
             var conteudo = await _context.Conteudos.FirstOrDefaultAsync(c =>
                 c.Thumbnail == thumbnail
             );
@@ -68,10 +68,10 @@ namespace StreamingAPI.Controllers
                 return NotFound(new { message = "Conteúdo não encontrado." });
             }
 
-            // O atributo Thumbnail já contém o nome do arquivo da thumbnail
+   
             var thumbnailFilePath = Path.Combine("Data/uploads/Thumbnails", conteudo.Thumbnail);
 
-            // Verifique se a thumbnail existe
+  
             if (!System.IO.File.Exists(thumbnailFilePath))
             {
                 return NotFound(new { message = "Thumbnail não encontrada." });
@@ -79,7 +79,7 @@ namespace StreamingAPI.Controllers
 
             // Retorne a thumbnail como um arquivo
             var fileBytes = await System.IO.File.ReadAllBytesAsync(thumbnailFilePath);
-            return File(fileBytes, "image/jpeg"); // Altere o tipo de conteúdo se necessário
+            return File(fileBytes, "image/jpeg"); 
         }
 
         [HttpGet("stream/{fileName}")]
